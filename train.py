@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--dataset", type=str, help="e.g. hawkes", required=True)
     parser.add_argument("--lr", type=int, default=0.01, help="learning rate")
-    parser.add_argument("--epochs", type=int, default=50, help="maximum epochs")
+    parser.add_argument("--epochs", type=int, default=10, help="maximum epochs")
     parser.add_argument("--seq_len", type=int, default=-1, help="truncated sequence length, -1 means full sequence")
     parser.add_argument("--batch_size", type=int, default=10, help="Batch_size for each train iteration")
     parser.add_argument("--used_past_model", type=bool, help="True to use a trained model named model.pt")
@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     t1 = time.time()
     print("Processing data...")
-    if dataset == 'hawkes':
+    if dataset == 'hawkes' or dataset == "self-correcting":
         file_path = 'data/' + dataset + "/time_train.txt"
         time_duration, seq_lens_list = utils.open_txt_file(file_path)
         type_size = 1
@@ -116,12 +116,12 @@ if __name__ == "__main__":
             print("In epochs {0}, process {1} over {2} is done".format(i, idx, max_len))
         avg_log = loss_total / events_total
         loss_value.append(avg_log)
-        print("The loss at epochs {0} is {1}".format(i, avg_log))
-        log.write("\nThe loss at epochs {0} is {1}".format(i, avg_log))
+        print("The log-likelihood at epochs {0} is {1}".format(i, avg_log))
+        log.write("\nThe log likelihood at epochs {0} is {1}".format(i, avg_log))
         print("model saved..")
         torch.save(model, "model.pt")
     plt.plot(loss_value)
-    plt.savefig("log-loss-graph.jpg")
+    plt.savefig("log-likelihood-graph.jpg")
     t4 = time.time()
     training_time = t4 - t3
     print("training done..")

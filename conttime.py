@@ -29,7 +29,7 @@ class Conttime(nn.Module):
         return loss
 
     def forward(self, types, dtime):
-        numb_seq, seq_len = types.shape
+        numb_seq, seq_len = dtime.shape
         self.hid_layer_minus = torch.zeros(numb_seq, self.hid_dim, dtype=torch.float32)
         self.cell_minus = torch.zeros(numb_seq, self.hid_dim, dtype=torch.float32)
         self.cell_bar_minus = torch.zeros(numb_seq, self.hid_dim, dtype=torch.float32)
