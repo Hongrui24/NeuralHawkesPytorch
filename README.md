@@ -3,6 +3,22 @@ This repository is a more concise and simpler pytorch implementation of the mode
 
 ## Introduction:
 ## Model Description:
+
+#### Prediction on Time (duration) and types:
+As described in the paper, the density function is given by (assume that we predict duration: time to the next event):
+<pre> p(t<sub>m</sub>) = λ(t<sub>m</sub>)exp(-integral<sub>0</sub><sup>t<sub>m</sub></sup>λ(s)ds), where m < N. N is the number of simulated points </pre>
+The predicted time is estimated by expectation on density function. The paper states that the integrals above can be estimated by Monte Carlo Simulation, but it does not give a clear algorithm for that simulation. Thus we purpose an algorithm below<br><br>
+First we simulate N events, where N is set to be 10000 by default. By technique difficulty of representing infinity, we assume that 20 times the max duration in the previous known data is a good representation for infinity. We first simulated N points uniformly in 0 to 20*max_duration:
+<pre> 0 < t<sub>1</sub> < t<sub>2</sub> < t<sub>3</sub> < .... < t<sub>N</sub> < 20*max_duration</pre>
+We use the same simulated points for both integrals. We first expanded the estimated sequence to N sequences of the same length and value plus a simulated time (duration) in order for N sequences. We can then calculate the corresponding estimation of c(t<sub>k</sub>), h(<sub>t</sub>), and λ(<sub>t</sub>) for each sequence. It is reasonable to think that t<sub>1</sub>, t<sub>2</sub>, ... t<sub>m</sub> are uniformly simulated in range [0, <sub>t</sub>], and we can assume that t1 is really small, and duration between 2 consecutive simulations are small. Thus, we can estimate the first integral in simulation by:
+<pre> integral<sub>0</sub><sup>t<sub>m</sub></sup>λ(s)ds = t<sub>m</sub> / m * (summation<sub>k=1</sub><sup>k=m</sup>{λ(t<sub>k</sub>}) </pre>
+Thus we can get an estimated density function for each simulated points. Then, we can estimate the time by:
+<pre> t<sub>est</sub> = 20*max_duration / N * (summation<sub>n=1</sub><sup>m=N</sup>{t<sub>m</sub>p(t<sub>m</sub>)}) </pre>
+<br>
+Then we can use the predicted time to calculate estimated intensity and types by inputting the estimated time into the original sequence to find <pre>λ(t<sub>est</sub>)</pre> and find estimated types by <pre>type = max(λ<sub>i</sub>(t<sub>est</sub>)) for i types of event. </pre>
+<br>
+By this method, we do not need to simulate N * N points to estimate two integral above as thought intuitively. We can estimate one point in O(N) times, and the result are pretty accurate as shown in the test results section. 
+
 ## Train and Testing the Model:
 1. To run the program on your computer, please make sure that you have the following files and packages being downloaded.<br />
 - Python3: you can download through the link here: https://www.python.org/ </pre>
@@ -43,6 +59,8 @@ When we test our trained model with the test file named test.pkl, we get log-lik
   <img src='https://user-images.githubusercontent.com/54515153/85962642-c5e00700-b97f-11ea-9c6a-d117d8329350.png' width='460' height='350'><img src='https://user-images.githubusercontent.com/54515153/84570795-a9c44f00-ad5d-11ea-9b71-30632793f9b4.png' width='460' height='350'>
  </p>
  <img src='https://user-images.githubusercontent.com/54515153/85622697-3d86fc80-b635-11ea-99f1-d6d5835e642c.JPG'>
+ 
+We find that the models trained by Neural Hawkes have a better prediction on the event duration and intensity comparing to model trained by RMTPP. What's more the prediction result by the model trained by Neural Hawkes is close to the prediction result by optimal estimators whose equations are known. 
 
 ## Acknowledgement:
-As notice by the original github page of pytorch implementation, this [license](https://github.com/HMEIatJHU/neural-hawkes-particle-smoothing/blob/master/LICENSE) need to be included. 
+This model is built by Hongrui Lyu, supervised by Hyunouk Ko and Dr. Huo. The file cont-time-cell is just a copy from Hongyuan Mei's code, but all other files are written by us. As notice by the original github page of pytorch implementation, this [license](https://github.com/HMEIatJHU/neural-hawkes-particle-smoothing/blob/master/LICENSE) need to be included. 
