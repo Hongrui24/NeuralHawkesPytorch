@@ -48,7 +48,7 @@ When we test our trained model with the test file named test.pkl, we get log-lik
 2. We also test out model with data provided in Du, Nan, et al. [“Recurrent Marked Temporal Point Processes.”](https://www.kdd.org/kdd2016/subtopic/view/recurrent-temporal-point-process) paper about self-correcting and hawkes. We train the model for 10 epochs with learning rate = 0.01 and truncated sequence length = 75. (Picture stack below from left to right, from top to bottom are result by Neural Hawkes, RMTPP, and Du Nan's Paper)<br />
 - Result of hawkes with comparison to the result in [pytorch implementation](https://github.com/Hongrui24/RMTPP-pytorch) and results in Du Nan's paper as below:
 <p float="left">
-<img src='https://user-images.githubusercontent.com/54515153/85952673-e173ef00-b938-11ea-8d1f-67ed3e67ec00.png' width='460' height='350'> <img src = 'https://user-images.githubusercontent.com/54515153/84570792-a630c800-ad5d-11ea-972e-a809f0865add.png' width='460' height='350'>
+<img src='https://user-images.githubusercontent.com/54515153/85952673-e173ef00-b938-11ea-8d1f-67ed3e67ec00.png' width='450' height='350'> <img src = 'https://user-images.githubusercontent.com/54515153/84570792-a630c800-ad5d-11ea-972e-a809f0865add.png' width='450' height='350'>
 </p>
 <img src = 'https://user-images.githubusercontent.com/54515153/85952682-05373500-b939-11ea-8224-b5d174d7cbf4.JPG'>
 
@@ -56,7 +56,7 @@ When we test our trained model with the test file named test.pkl, we get log-lik
 
 - Result of self-correcting with comparison to result in [pytorch implementation](https://github.com/Hongrui24/RMTPP-pytorch) and results in Du Nan's paper as below:
 <p float="left">
-  <img src='https://user-images.githubusercontent.com/54515153/85962642-c5e00700-b97f-11ea-9c6a-d117d8329350.png' width='460' height='350'><img src='https://user-images.githubusercontent.com/54515153/84570795-a9c44f00-ad5d-11ea-9b71-30632793f9b4.png' width='460' height='350'>
+  <img src='https://user-images.githubusercontent.com/54515153/85962642-c5e00700-b97f-11ea-9c6a-d117d8329350.png' width='450' height='350'><img src='https://user-images.githubusercontent.com/54515153/84570795-a9c44f00-ad5d-11ea-9b71-30632793f9b4.png' width='450' height='350'>
  </p>
  <img src='https://user-images.githubusercontent.com/54515153/85622697-3d86fc80-b635-11ea-99f1-d6d5835e642c.JPG'>
  
