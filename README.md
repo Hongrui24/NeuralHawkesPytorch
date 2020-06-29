@@ -13,7 +13,7 @@ First we simulate N events, where N is set to be 10000 by default. By technique 
 We use the same simulated points for both integrals. We first expanded the estimated sequence to N sequences of the same length and value plus a simulated time (duration) in order for N sequences. We can then calculate the corresponding estimation of c(t<sub>k</sub>), h(<sub>t</sub>), and λ(<sub>t</sub>) for each sequence. It is reasonable to think that t<sub>1</sub>, t<sub>2</sub>, ... t<sub>m</sub> are uniformly simulated in range [0, <sub>t</sub>], and we can assume that t1 is really small, and duration between 2 consecutive simulations are small. Thus, we can estimate the first integral in simulation by:
 <pre> integral<sub>0</sub><sup>t<sub>m</sub></sup>λ(s)ds = t<sub>m</sub> / m * (summation<sub>k=1</sub><sup>k=m</sup>{λ(t<sub>k</sub>}) </pre>
 Thus we can get an estimated density function for each simulated points. Then, we can estimate the time by:
-<pre> t<sub>est</sub> = 20*max_duration / N * (summation<sub>n=1</sub><sup>m=N</sup>{t<sub>m</sub>p(t<sub>m</sub>)}) </pre>
+<pre> t<sub>est</sub> = 20*max_duration / N * (summation<sub>m=1</sub><sup>m=N</sup>{t<sub>m</sub>p(t<sub>m</sub>)}) </pre>
 <br>
 Then we can use the predicted time to calculate estimated intensity and types by inputting the estimated time into the original sequence to find <pre>λ(t<sub>est</sub>)</pre> and find estimated types by <pre>type = max(λ<sub>i</sub>(t<sub>est</sub>)) for i types of event. </pre>
 <br>
