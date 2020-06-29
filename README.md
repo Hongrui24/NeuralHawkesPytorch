@@ -5,19 +5,23 @@ This repository is a more concise and simpler pytorch implementation of the mode
 ## Model Description:
 
 #### Prediction on Time (duration) and types:
-As described in the paper, the density function is given by (assume that we predict duration: time to the next event):
-<pre> p(t<sub>m</sub>) = λ(t<sub>m</sub>)exp(-integral<sub>0</sub><sup>t<sub>m</sub></sup>λ(s)ds), where m < N. N is the number of simulated points </pre>
-The predicted time is estimated by expectation on density function. The paper states that the integrals above can be estimated by Monte Carlo Simulation, but it does not give a clear algorithm for that simulation. Thus we purpose an algorithm below<br><br>
-First we simulate N events, where N is set to be 10000 by default. By technique difficulty of representing infinity, we assume that 20 times the max duration in the previous known data is a good representation for infinity. We first simulated N points uniformly in 0 to 20*max_duration:
-<pre> 0 < t<sub>1</sub> < t<sub>2</sub> < t<sub>3</sub> < .... < t<sub>N</sub> < 20*max_duration</pre>
-We use the same simulated points for both integrals. We first expanded the estimated sequence to N sequences of the same length and value plus a simulated time (duration) in order for N sequences. We can then calculate the corresponding estimation of c(t<sub>k</sub>), h(<sub>t</sub>), and λ(<sub>t</sub>) for each sequence. It is reasonable to think that t<sub>1</sub>, t<sub>2</sub>, ... t<sub>m</sub> are uniformly simulated in range [0, <sub>t</sub>], and we can assume that t1 is really small, and duration between 2 consecutive simulations are small. Thus, we can estimate the first integral in simulation by:
-<pre> integral<sub>0</sub><sup>t<sub>m</sub></sup>λ(s)ds = t<sub>m</sub> / m * (summation<sub>k=1</sub><sup>k=m</sup>{λ(t<sub>k</sub>}) </pre>
-Thus we can get an estimated density function for each simulated points. Then, we can estimate the time by:
-<pre> t<sub>est</sub> = 20*max_duration / N * (summation<sub>m=1</sub><sup>m=N</sup>{t<sub>m</sub>p(t<sub>m</sub>)}) </pre>
+As described in the paper once we have calculated the intensity function λ(t) for the time t in the future, the density function at time t is given by :
+<pre><img src="https://render.githubusercontent.com/render/math?math=p(t) = \lambda (t) * e ^ {\int_{t_{i-1}}^{t} \lambda (s)ds}"></pre>
+We can calculate when will the next event happens by the expectation of probability density function on time:
+<pre><img src="https://render.githubusercontent.com/render/math?math=t_{estimated} = \int_{t_{i-1}}^{\infty} tp(t) dt = \int_{t_{i-1}}^{\infty} t\lambda(t) * e ^ {\int_{t_{i-1}}^{t} \lambda (s)ds}dt"></pre>
+The paper states that the integrals above can be estimated by Monte Carlo Simulation, but it does not give a clear algorithm for that simulation. When we think intuitively, we may sample N event times which happen after t<sub>i-1</sub> to calculate the integral in the expectation, and for each event time sampled we may sample another M event times between t<sub>i-1</sub> and the event time which is sampled before to calculate the integral in the exponential term. If we calculate estimated time for the next event in this way, not only will it takes a long time to calculate, but also the accuracy may decrease when M is small for large t with fixed M. Thus we purpose an algorithm below<br><br>
+
+Since our model takes in inter-event duration as input, we will estimate the inter-event duration (Δt<sub>estimated</sub>) to the next future time by the equation:
+<pre><img src="https://render.githubusercontent.com/render/math?math=\Delta t_{estimated} = \int_{0}^{\infty} \Delta tp(\Delta t) d \Delta t = \int_{0}^{\infty} \Delta t\lambda(\Delta t) * e ^ {\int_{0}^{\Delta t} \lambda (s)ds} d \Delta t"> where Δt = t - t<sub>i-1</sub> </pre>
+We can get t<sub>estimated</sub> by adding t<sub>i-1</sub> to Δt<sub>estimated</sub><br><br>
+First we simulate N inter-event durations, where N is set to be 10000 by default. By technique difficulty of representing infinity, we assume that 20 times the max duration in history is a good representation for infinity:
+<pre><img src="https://render.githubusercontent.com/render/math?math=0 < \Delta t_1 < \Delta t_2 < \Delta t_3 < ...... < \Delta t_N < 20 \times MaxDuratiom "></pre>
+We use the same simulated points for both integrals. We first expanded the estimated sequence to N sequences of the same length and value plus a simulated time (duration) in order accordingly. We can then calculate the corresponding value of c(Δt<sub>k</sub>), h(Δt<sub>k</sub>), and λ(Δt<sub>k</sub>) by Neural Hawkes model in one run. We store all these λ(Δt<sub>k</sub>) in a list for latter use. Let m be an integer that is less than N. It is reasonable to think that Δt<sub>1</sub>, Δt<sub>2</sub>, ... Δt<sub>m</sub> are uniformly simulated in range [0, Δt<sub>m</sub>], and we can assume that Δt<sub>1</sub> is really small, duration between 2 consecutive simulations are small. Thus, we can estimate the integral on exponential term by:
+<pre><img src="https://render.githubusercontent.com/render/math?math=\int_{0}^{\Delta t_m}\lambda (s) ds \approx \frac {t_m}{m}\sum_{k=1}^{k=m}\lambda (\Delta t_k)">, and <img src="https://render.githubusercontent.com/render/math?math=p(\Delta t_m) = \lambda (\Delta t_k) \times e ^ {\int_{0}^{\Delta t_m}\lambda (s) ds} \approx  \lambda (\Delta t_k) \times e ^ {\frac {t_m}{m}\sum_{k=1}^{k=m}\lambda (\Delta t_k)}"></pre>
+Then, we can estimate inter-event time to the next event by:
+<pre><img src="https://render.githubusercontent.com/render/math?math=\Delta t_{estimated} = \int_{0}^{\infty} \Delta tp(\Delta t) dt \approx  \frac {20 \times MaxDuration}{N}  \sum_{k=1}^{k=N} \Delta t_k p(\Delta t_k) "></pre>
 <br>
-Then we can use the predicted time to calculate estimated intensity and types by inputting the estimated time into the original sequence to find <pre>λ(t<sub>est</sub>)</pre> and find estimated types by <pre>type = max(λ<sub>i</sub>(t<sub>est</sub>)) for i types of event. </pre>
-<br>
-By this method, we do not need to simulate N * N points to estimate two integrals above as thought intuitively. We can estimate one point in O(N) times, and the result are pretty accurate as shown in the test results section. 
+By this method, we do not need to simulate N * N points to estimate two integrals above as thought intuitively. The algorithm also has some kinds of accuracy as the test results looks good.  
 
 ## Train and Testing the Model:
 1. To run the program on your computer, please make sure that you have the following files and packages being downloaded.<br />
