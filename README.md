@@ -17,7 +17,7 @@ Thus we can get an estimated density function for each simulated points. Then, w
 <br>
 Then we can use the predicted time to calculate estimated intensity and types by inputting the estimated time into the original sequence to find <pre>λ(t<sub>est</sub>)</pre> and find estimated types by <pre>type = max(λ<sub>i</sub>(t<sub>est</sub>)) for i types of event. </pre>
 <br>
-By this method, we do not need to simulate N * N points to estimate two integral above as thought intuitively. We can estimate one point in O(N) times, and the result are pretty accurate as shown in the test results section. 
+By this method, we do not need to simulate N * N points to estimate two integrals above as thought intuitively. We can estimate one point in O(N) times, and the result are pretty accurate as shown in the test results section. 
 
 ## Train and Testing the Model:
 1. To run the program on your computer, please make sure that you have the following files and packages being downloaded.<br />
