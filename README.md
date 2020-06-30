@@ -16,12 +16,12 @@ Since our model takes in inter-event duration as input, we will estimate the int
 We can get t<sub>estimated</sub> by adding t<sub>i-1</sub> to Δt<sub>estimated</sub><br><br>
 First we simulate N inter-event durations, where N is set to be 10000 by default. By technique difficulty of representing infinity, we assume that 20 times the max duration in history is a good representation for infinity:
 <pre><img src="https://render.githubusercontent.com/render/math?math=0 < \Delta t_1 < \Delta t_2 < \Delta t_3 < ...... < \Delta t_N < 20 \times MaxDuratiom "></pre>
-We use the same simulated points for both integrals. We first expanded the estimated sequence to N sequences of the same length and value plus a simulated time (duration) in order accordingly. We can then calculate the corresponding value of c(Δt<sub>k</sub>), h(Δt<sub>k</sub>), and λ(Δt<sub>k</sub>) by Neural Hawkes model in one run. We store all these λ(Δt<sub>k</sub>) in a list for latter use. Let m be an integer that is less than N. It is reasonable to think that Δt<sub>1</sub>, Δt<sub>2</sub>, ... Δt<sub>m</sub> are uniformly simulated in range [0, Δt<sub>m</sub>], and we can assume that Δt<sub>1</sub> is really small, duration between 2 consecutive simulations are small. Thus, we can estimate the integral on exponential term by:
+We use the same simulated points for both integrals. We first expanded the estimated sequence to N sequences of the same length and value plus a simulated time (duration) in order accordingly. We can then calculate the corresponding value of c(Δt<sub>k</sub>), h(Δt<sub>k</sub>), and λ(Δt<sub>k</sub>) by Neural Hawkes model in one run. We store all these λ(Δt<sub>k</sub>) in a list for latter use. Let m be an integer that is less than or equal to N. It is reasonable to think that Δt<sub>1</sub>, Δt<sub>2</sub>, ... Δt<sub>m</sub> are uniformly simulated in range [0, Δt<sub>m</sub>], and we can assume that Δt<sub>1</sub> is really small, duration between 2 consecutive simulations are small. Thus, we can estimate the integral on exponential term by:
 <pre><img src="https://render.githubusercontent.com/render/math?math=\int_{0}^{\Delta t_m}\lambda (s) ds \approx \frac {t_m}{m}\sum_{k=1}^{k=m}\lambda (\Delta t_k)">, and <img src="https://render.githubusercontent.com/render/math?math=p(\Delta t_m) = \lambda (\Delta t_k) \times e ^ {\int_{0}^{\Delta t_m}\lambda (s) ds} \approx  \lambda (\Delta t_k) \times e ^ {\frac {t_m}{m}\sum_{k=1}^{k=m}\lambda (\Delta t_k)}"></pre>
 Then, we can estimate inter-event time to the next event by:
-<pre><img src="https://render.githubusercontent.com/render/math?math=\Delta t_{estimated} = \int_{0}^{\infty} \Delta tp(\Delta t) dt \approx  \frac {20 \times MaxDuration}{N}  \sum_{k=1}^{k=N} \Delta t_k p(\Delta t_k) "></pre>
+<pre><img src="https://render.githubusercontent.com/render/math?math=\Delta t_{estimated} = \int_{0}^{\infty} \Delta tp(\Delta t) dt \approx  \frac {20 \times MaxDuration}{N}  \sum_{m=1}^{m=N} \Delta t_m p(\Delta t_m) "></pre>
 <br>
-By this method, we do not need to simulate N * N points to estimate two integrals above as thought intuitively. The algorithm also has some kinds of accuracy as the test results looks good.  
+By this method, we do not need to simulate N * M points to estimate two integrals above as thought intuitively. The algorithm also has some kinds of accuracy as the test results looks good.  
 
 ## Train and Testing the Model:
 1. To run the program on your computer, please make sure that you have the following files and packages being downloaded.<br />
@@ -41,7 +41,18 @@ Examples include:
 Examples include:
 <pre>!python test.py --dataset conttime --test_type 2</pre><pre>!python test.py --dataset self-correcting --test_type 1</pre>
 
-<br />Some of the data files are too large to be push to this repository. These are the data used originally in Hongyuan Mei et al's paper. Please refer to [this](https://github.com/HMEIatJHU/neurawkes/tree/master/data) page to get the data. The direction of the data file should be parallel with the train and test file with name "data". Inside the "data" folder should be the folder named for each test like "conttime", "data_hawkes" etc. Each test folder should contain "train.pkl", and "test.pkl". We use "conttime" as folder name for "data_conttime", "data_hawkes" for "data_hawkes" and "data_hawkeshib" for "data_hawkesinhib" for the paper's data. 
+4. Google Colab:
+Because of the complexity of the model, and long training time, it is better to train and test the model on cloud such as Google Colab rather than train the model on your laptop or desktop. The purpose of using Google Colab is to accelerate the training process and protect your personal laptop from overheated caused by a long time intense computing. If you are using a desktop built for neural network training or scientific computing, you may simply ingore this section. <br><br>
+Google Colab is a plotform which allow you to write and run python Jupyter Notebook with CPU, GPU or TPU that are designed for Neural Network training. Google Colab also allows you to type linux command line to execute python files such as files in this repository. <br><br>
+To use the Google Colab, you must use the chrome browser, log in to your google account, and follow the picture below:
+![colab1](https://user-images.githubusercontent.com/54515153/86067942-16b93380-ba44-11ea-9a3c-19393b3eed95.JPG)
+![colab2](https://user-images.githubusercontent.com/54515153/86068280-ede56e00-ba44-11ea-9ace-867ae3ae6ac4.JPG)
+It is recommanded to use GPU to train the model. To change to GPU mode, select Runtime, Change run time type, and in Hardware accelerator select GPU.
+Type the commands blow cell by cell:
+<pre>!git clone  https://github.com/Hongrui24/NeuralHawkesPytorch</pre>
+<pre>!cd NeuralHawkesPytorch</pre>
+Then you can type the command in this section 2. and 3. to train and test the model. 
+
 
 ## Testing Results:
 1. The first test is training the model with data named "conttime" described in Hongyuan Mei's Paper with lr = 0.01, epochs = 30, mini batch size = 10. The log likelihood (not negative log likelihood) during the training has the plot ![log-likelihood-graph](https://user-images.githubusercontent.com/54515153/85951273-1af42c80-b930-11ea-8193-9bade5181951.jpg)
