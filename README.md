@@ -3,6 +3,18 @@ This repository is a more concise and simpler pytorch implementation of the mode
 
 ## Introduction:
 ## Model Description:
+The model is highly based on LSTM. This [website](https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21) provides a quick introduction to a typical LSTM model and background knowledge in Deep Learning. 
+#### Model 
+The following is a recap of the paper by Hongyuan Mei:<br>
+We use continuous-time LSTM, a type of recurrent network to model the Hawkes Process. The model is called continuous because the memory cell c will decay exponentially to some constant value c̅ with rate <img src="https://render.githubusercontent.com/render/math?math=\delta">, and the value of cell c and c̅ will be updated once the model get input (k<sub>i</sub>, t<sub>i</sub>).<br>
+Because in the model's decaying architecture, it calculates the inter-event duration. Thus, the input to the model will be (k<sub>i</sub>, d<sub>i</sub>) instead, where d<sub>i</sub> = t<sub>i</sub> - t<sub>i-1</sub>, and d<sub>1</sub> = t<sub>1</sub>. Before input the event sequence into our model, we will pad an event <k<sub>0</sub>, d<sub>0</sub>> = <k, 0> to start the sequence for initial value of LSTM to the sequence. For each LSTM cell, we first embed the event type k<sub>i</sub> into a vector K<sub>i</sub> of size k+1, and feed the vector into the LSTM cell. The cell is updated by the following equations:
+<pre><img src="https://render.githubusercontent.com/render/math?math=i_{{\imath}+1} = sigmoid(W_ik_{\imath} \oplus U_ih(t_{\imath}) \oplus d_i)">
+<img src="https://render.githubusercontent.com/render/math?math=f_{{\imath}+1} = sigmoid(W_fk_{\imath} \oplus U_fh(t_{\imath}) \oplus d_f)">
+<img src="https://render.githubusercontent.com/render/math?math=z_{{\imath}+1} = tanh(W_zk_{\imath} \oplus U_zh(t_{\imath}) \oplus d_z)">
+<img src="https://render.githubusercontent.com/render/math?math=o_{{\imath}+1} = sigmoid(W_ok_{\imath} \oplus U_oh(t_{\imath}) \oplus d_o)">
+<img src="https://render.githubusercontent.com/render/math?math=c_{{\imath}+1} = f_{i+1} \times c(t_i) \oplus i_{\imath+1} \times z_{\imath+1}">
+<img src="https://render.githubusercontent.com/render/math?math=\bar{c_{\imath+1}} =  \bar{f_{\imath+1}} \times \bar{c_i} \oplus \bar{i_{\imath+1}} \times z_{\imath+1}">
+<img src="https://render.githubusercontent.com/render/math?math=\delta_{\imath+1} = softplus(W_dk_{\imath} \oplus U_dh(t_i) \oplus d_d)"></pre>
 
 #### Prediction on Time (duration) and types:
 As described in the paper once we have calculated the intensity function λ(t) for the time t in the future, the density function at time t is given by :
