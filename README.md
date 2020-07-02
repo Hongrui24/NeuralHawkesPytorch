@@ -83,7 +83,8 @@ Type the commands blow cell by cell:
 <pre>!cd NeuralHawkesPytorch</pre>
 Then you can type the command in this section 2. and 3. to train and test the model. 
 
-
+5. Notice:
+The dataset in this repository is truncated from the original data due to the large dataset and long training time. You may train the data in this repository with at least 20 epochs to get a similar result below. The training process takes about 30 minutes, and the original dataset may be trained for at least 4 hours for about 10 epochs. The original dataset can be found in [this page](https://github.com/dunan/NeuralPointProcess/tree/master/data/synthetic) and [here](https://github.com/HMEIatJHU/neurawkes/tree/master/data)
 ## Testing Results:
 1. The first test is training the model with data named "conttime" described in Hongyuan Mei's Paper with lr = 0.01, epochs = 30, mini batch size = 10. The log likelihood (not negative log likelihood) during the training has the plot ![log-likelihood-graph](https://user-images.githubusercontent.com/54515153/85951273-1af42c80-b930-11ea-8193-9bade5181951.jpg)
 <bre />
