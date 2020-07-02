@@ -12,7 +12,7 @@ The model is highly based on LSTM. This [website](https://towardsdatascience.com
 #### Model 
 The following is a recap of the paper by Hongyuan Mei:<br>
 We use continuous-time LSTM, a type of recurrent network to model the Hawkes Process. The model is called continuous because the memory cell c will decay exponentially to some constant value c̅ with rate <img src="https://render.githubusercontent.com/render/math?math=\delta">, and the value of cell c and c̅ will be updated once the model get input (k<sub>i</sub>, t<sub>i</sub>).<br>
-Because in the model's decaying architecture, it calculates the inter-event duration. Thus, the input to the model will be (k<sub>i</sub>, d<sub>i</sub>) instead, where d<sub>i</sub> = t<sub>i</sub> - t<sub>i-1</sub>, and d<sub>1</sub> = t<sub>1</sub>. Before input the event sequence into our model, we will pad an event <k<sub>0</sub>, d<sub>0</sub>> = <k, 0> to start the sequence for initial value of LSTM to the sequence. For each LSTM cell, we first embed the event type k<sub>i</sub> into a vector K<sub>i</sub> of size k+1, and feed the vector into the LSTM cell. The cell is updated by the following equations:
+Because in the model's decaying architecture, it calculates the inter-event duration. Thus, the input to the model will be (k<sub>i</sub>, d<sub>i</sub>) instead, where d<sub>i</sub> = t<sub>i</sub> - t<sub>i-1</sub>, and d<sub>1</sub> = t<sub>1</sub>. Before input the event sequence into our model, we will pad an event <k<sub>0</sub>, d<sub>0</sub>> = <k, 0> to start the sequence for initializing value of LSTM to the sequence. For each LSTM cell, we first embed the event type k<sub>i</sub> into a vector K<sub>i</sub> of size k+1, and feed the vector into the LSTM cell. The cell is updated by the following equations:
 <pre><img src="https://render.githubusercontent.com/render/math?math=i_{{\imath}+1} = sigmoid(W_ik_{\imath} \oplus U_ih(t_{\imath}) \oplus d_i)">
 <img src="https://render.githubusercontent.com/render/math?math=f_{{\imath}+1} = sigmoid(W_fk_{\imath} \oplus U_fh(t_{\imath}) \oplus d_f)">
 <img src="https://render.githubusercontent.com/render/math?math=z_{{\imath}+1} = tanh(W_zk_{\imath} \oplus U_zh(t_{\imath}) \oplus d_z)">
@@ -29,7 +29,7 @@ Then we may get the value of hidden layer of the LSTM and intensity function of 
 <img src="https://render.githubusercontent.com/render/math?math=\lambda_{k}(t) = softplus(w_{k}^{T} h(t))"></pre>
 
 During the training, we minimize the negative log likelihood below:
-<pre><img src="https://render.githubusercontent.com/render/math?math=-l = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  + \int_{0}^{T}\lambda(t)dt = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  + \Lambda"></pre></pre>
+<pre><img src="https://render.githubusercontent.com/render/math?math=-l = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  \oplus \int_{0}^{T}\lambda(t)dt = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  \oplus \Lambda"></pre></pre>
 
 The interal above is estimated by the Monte Carlo method described below:
 ![monte carlo](https://user-images.githubusercontent.com/54515153/86408991-0bede100-bc86-11ea-97a3-d09e69ed7c40.JPG)
