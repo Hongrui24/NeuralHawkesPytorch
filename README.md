@@ -2,6 +2,11 @@
 This repository is a more concise and simpler pytorch implementation of the model in paper Hongyuan Mei, Jason Eisner [The Neural Hawkes Process: A Neurally Self-Modulating Multivariate Point Process](https://arxiv.org/abs/1612.09328)
 
 ## Introduction:
+A sequence of events with different types are often generated in our lives. Some of the event type in the history may increase of decrease the probability of other types of events in the future. For example, one disease may cause the likelihood of another disease and using some type of medicine may decrease the likelihood of another disease. A basic model that captures this feature is non-homogenuous poission process, where the probability of of event type k occurs at time t, in an small range [t, t+dt] has probability <img src="https://render.githubusercontent.com/render/math?math=\lambda _{k}(t)dt">. This is <img src="https://render.githubusercontent.com/render/math?math=\lambda"> is known as the intensity function. The total intensity funciton is given by <img src="https://render.githubusercontent.com/render/math?math=\lambda (t) = \sum_{0}^{K} \lambda _{k} (t)"><br>
+
+The problem we care about is to predict when will the next event happens and what will be the event type. That is given a stream of event of form:
+<pre>(k<sub>1</sub>, t<sub>1</sub>), (k<sub>2</sub>, t<sub>2</sub>), (k<sub>3</sub>, t<sub>3</sub>) ... (k<sub>n</sub>, t<sub>n</sub>)</pre>
+we want to predict the next event time and type (k<sub>n+1</sub>, t<sub>n+1</sub>)<br>
 ## Model Description:
 The model is highly based on LSTM. This [website](https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21) provides a quick introduction to a typical LSTM model and background knowledge in Deep Learning. 
 #### Model 
@@ -15,6 +20,19 @@ Because in the model's decaying architecture, it calculates the inter-event dura
 <img src="https://render.githubusercontent.com/render/math?math=c_{{\imath}+1} = f_{i+1} \times c(t_i) \oplus i_{\imath+1} \times z_{\imath+1}">
 <img src="https://render.githubusercontent.com/render/math?math=\bar{c_{\imath+1}} =  \bar{f_{\imath+1}} \times \bar{c_i} \oplus \bar{i_{\imath+1}} \times z_{\imath+1}">
 <img src="https://render.githubusercontent.com/render/math?math=\delta_{\imath+1} = softplus(W_dk_{\imath} \oplus U_dh(t_i) \oplus d_d)"></pre>
+
+The memory cell's value is decaying though time by the equation below:
+<pre><img src="https://render.githubusercontent.com/render/math?math=c(t) = \bar{c_{i+1}} \oplus (c_{i+1} - \bar{c_{i+1}})e^{-\delta_{i+1} (t-t_{i})} = \bar{c_{i+1}} \oplus (c_{i+1} - \bar{c_{i+1}})e^{-\delta d_{i}}"></pre>
+
+Then we may get the value of hidden layer of the LSTM and intensity function of Hawkes's process by:
+<pre><img src="https://render.githubusercontent.com/render/math?math=h(t) = o_{i} \otimes tanh(c(t))">
+<img src="https://render.githubusercontent.com/render/math?math=\lambda_{k}(t) = softplus(w_{k}^{T} h(t))"></pre>
+
+During the training, we minimize the negative log likelihood below:
+<pre><img src="https://render.githubusercontent.com/render/math?math=-l = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  + \int_{0}^{T}\lambda(t)dt = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  + \Lambda"></pre></pre>
+
+The interal above is estimated by the Monte Carlo method described below:
+![monte carlo](https://user-images.githubusercontent.com/54515153/86408991-0bede100-bc86-11ea-97a3-d09e69ed7c40.JPG)
 
 #### Prediction on Time (duration) and types:
 As described in the paper once we have calculated the intensity function λ(t) for the time t in the future, the density function at time t is given by :
