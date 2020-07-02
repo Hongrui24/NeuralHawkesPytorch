@@ -9,7 +9,7 @@ from sklearn.metrics import mean_squared_error
 from math import sqrt
 
 
-def test1(time_duration, seq_lens_list, type_test, n_sample):
+def test1(time_duration, seq_lens_list, type_test, n_sample, dataset):
     # read the model and simulate durations for integral
     print("testing...")
     print("generating test samples...")
@@ -23,7 +23,7 @@ def test1(time_duration, seq_lens_list, type_test, n_sample):
         time_durations = time_duration[0][:idx]
         type_tests = type_test[:idx]
         max_duration = torch.max(time_durations)
-        simulated_duration = torch.sort(torch.empty(n_samples).uniform_(0, 20*max_duration.item()))[0].reshape(n_samples, 1)
+        simulated_duration = torch.sort(torch.empty(n_samples).uniform_(0, 40*max_duration.item()))[0].reshape(n_samples, 1)
         time_durations = time_durations.expand(n_samples, time_durations.shape[-1])
         time_duration_sim_padded = torch.cat((time_durations, simulated_duration), dim=1)
         type_tests = type_tests.expand(n_samples, type_tests.shape[-1])
@@ -41,7 +41,7 @@ def test1(time_duration, seq_lens_list, type_test, n_sample):
         simulated_duration = simulated_duration.reshape(n_samples)
         simulated_integral_exp_terms = torch.stack([(torch.sum(estimated_lambda_sum[:(i+1)]) * (simulated_duration[i] / (i+1))) for i in range(0, n_samples)])
         simulated_density = estimated_lambda_sum * torch.exp(-simulated_integral_exp_terms)
-        estimated_time = torch.sum(simulated_duration * simulated_density) * (20 * max_duration.item()) / n_samples
+        estimated_time = torch.sum(simulated_duration * simulated_density) * (40 * max_duration.item()) / n_samples
         estimated_times.append(estimated_time.item())
 
         # calculate intensity and typies
@@ -59,10 +59,17 @@ def test1(time_duration, seq_lens_list, type_test, n_sample):
     # print(len(original_time))
     rmse = sqrt(mean_squared_error(original_time, estimated_times))
     figure, ax = plt.subplots(2,2)
-    ax[0,0].plot(range(100),original_time)
-    ax[0,0].plot(range(100),estimated_times)
+    figure.suptitle(dataset+" by Neural Hawkes")
+    ax[0,0].plot(range(100),original_time, label="actual")
+    ax[0,0].plot(range(100),estimated_times, label="predicted")
+    ax[0,0].set_xlabel("Time Index")
+    ax[0,0].set_ylabel("Time Duration")
+    ax[0,0].legend()
     ax[0,1].plot(range(100),estimated_intensities)
+    ax[0,1].set_xlabel("Time Index")
+    ax[0,1].set_ylabel("Intensity")
     ax[1,0].bar(x=1, height=rmse)
+    ax[1,0].set_title("RMSE")
     ax[1,0].annotate(str(round(rmse,3)),xy=[1, rmse])
     ax[1,1].set_visible(False)
     figure.tight_layout()
@@ -153,7 +160,7 @@ if __name__ == "__main__":
         time_duration = time_duration[:1]
         seq_lens_list = seq_lens_list[:1]
         type_test = type_test[:1]
-        estimated_types = test1(time_duration, seq_lens_list, type_test, n_samples)
+        estimated_types = test1(time_duration, seq_lens_list, type_test, n_samples, dataset)
         log.write("\nestimated types: \n")
         for item in estimated_types:
             log.write(str(item))
