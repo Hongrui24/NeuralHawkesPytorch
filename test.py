@@ -21,7 +21,7 @@ def test1(time_duration, seq_lens_list, type_test, n_sample, dataset):
     model = torch.load("model.pt")
     for idx in range(57, max_len):
         time_durations = time_duration[0][:idx]
-        type_tests = type_test[:idx]
+        type_tests = type_test[0][:idx]
         max_duration = torch.max(time_durations)
         simulated_duration = torch.sort(torch.empty(n_samples).uniform_(0, 40*max_duration.item()))[0].reshape(n_samples, 1)
         time_durations = time_durations.expand(n_samples, time_durations.shape[-1])
@@ -60,8 +60,8 @@ def test1(time_duration, seq_lens_list, type_test, n_sample, dataset):
     rmse = sqrt(mean_squared_error(original_time, estimated_times))
     figure, ax = plt.subplots(2,2)
     figure.suptitle(dataset+" by Neural Hawkes")
-    ax[0,0].plot(range(100),original_time, label="actual")
-    ax[0,0].plot(range(100),estimated_times, label="predicted")
+    ax[0,0].plot(original_time, label="actual")
+    ax[0,0].plot(estimated_times, label="predicted")
     ax[0,0].set_xlabel("Time Index")
     ax[0,0].set_ylabel("Time Duration")
     ax[0,0].legend()
@@ -103,12 +103,150 @@ def test2(time_duration, type_test, seq_lens, device, log):
     log.write("\nTest time log likelihood is {0}".format(time_likelihood.item()))
 
 
+def test3(time_durations, seq_lens_lists, type_tests, n_samples, dataset, log):
+    model = torch.load("model.pt")
+    numb_tests = time_durations.shape[0]
+    original_types = []
+    predicted_types = []
+    for i in range(numb_tests):
+        time_duration = time_durations[i:i+1]
+        type_test = type_tests[i:i+1]
+        seq_len = seq_lens_lists[i]
+
+        original_types.append(type_test[0][seq_len].item())
+        type_test = type_test[:, :seq_len]
+        time_duration = time_duration[:, :seq_len+1]
+
+        h_out, c_out, c_bar_out, decay_out, gate_out = model(type_test, time_duration)
+        lambda_all = F.softplus(model.hidden_lambda(h_out[-1]))
+        lambda_sum = torch.sum(lambda_all, dim=-1)
+        lambda_all = lambda_all / lambda_sum
+        # print(lambda_all)
+        _, predict_type = torch.max(lambda_all, dim=-1)
+        predicted_types.append(predict_type.item())
+    log.write("\noriginal type:  ")
+    for item in original_types:
+        log.write(str(item))
+        log.write(" ")
+    log.write("\npredicted_type: ")
+    for item in predicted_types:
+        log.write(str(item))
+        log.write(" ")
+    
+    total_numb = len(original_types)
+    numb_correct = 0
+    for idx in range(total_numb):
+        if predicted_types[idx] == original_types[idx]:
+            numb_correct += 1
+    log.write("\ncorrectness: {0}".format(numb_correct/total_numb))
+
+    error = 1 - numb_correct/total_numb
+    figure, ax = plt.subplots(1,1)
+    figure.suptitle(dataset+" by Neural Hawkes")
+    ax.bar(x=1, height=error)
+    plt.savefig("result.png")
+
+        
+
+def test4(time_durations, seq_lens_lists, type_tests, n_samples, dataset, log):
+    model = torch.load("model.pt")
+    numb_tests = time_durations.shape[0]
+    original_types = []
+    predicted_types = []
+    original_durations = []
+    predicted_durations = []
+
+    for i in range(numb_tests):
+        time_duration = time_durations[i:i+1]
+        type_test = type_tests[i:i+1]
+        seq_len = seq_lens_lists[i]
+
+        original_types.append(type_test[0][seq_len].item())
+        type_test = type_test[:, :seq_len]
+        original_durations.append(time_duration[0][seq_len].item())
+        time_duration = time_duration[:, :seq_len]
+
+        max_duration = torch.max(time_duration)
+        simulated_duration = torch.sort(torch.empty(n_samples).uniform_(0, 40*max_duration.item()))[0].reshape(n_samples, 1)
+        time_duration = time_duration.expand(n_samples, time_duration.shape[-1])
+        time_duration_sim_padded = torch.cat((time_duration, simulated_duration), dim=1)
+        type_test = type_test.expand(n_samples, type_test.shape[-1])
+
+        # get the simulated out and processing h, c, c_bar, decay, o
+        h_out, c_out, c_bar_out, decay_out, gate_out = model(type_test, time_duration_sim_padded)
+        simulated_h, simulated_c, simulated_c_bar, simulated_decay, simulated_o = h_out[-1], c_out[-1], c_bar_out[-1], decay_out[-1], gate_out[-1]
+        h_last, c_last, c_bar_last, decay_last, o_last = h_out[-2][0], c_out[-2][0], c_bar_out[-2][0], decay_out[-2][0], gate_out[-2][0]
+
+        # calculate estimated lambda and density
+        # Use of monte carlo simulation of the way below:
+        # p(di) = lambda(di) * exp(-(sum from 1 to i (lambda(dk))) * di / i) to calculate p(di) = lambda(di) * exp(-(integral from 0 to di (lambda(tao))))
+        estimated_lambda_sum = torch.sum(F.softplus(model.hidden_lambda(simulated_h)), dim=-1)
+        estimated_lambda_sum = estimated_lambda_sum.reshape(n_samples)
+        simulated_duration = simulated_duration.reshape(n_samples)
+        simulated_integral_exp_terms = torch.stack([(torch.sum(estimated_lambda_sum[:(i+1)]) * (simulated_duration[i] / (i+1))) for i in range(0, n_samples)])
+        simulated_density = estimated_lambda_sum * torch.exp(-simulated_integral_exp_terms)
+        estimated_time = torch.sum(simulated_duration * simulated_density) * (40 * max_duration.item()) / n_samples
+        predicted_durations.append(estimated_time.item())
+
+        # calculate intensity and typies
+
+        type_input = model.emb(type_test[0][-1])
+        cell_i, cell_bar_updated, gate_decay, gate_output = model.lstm_cell(type_input, h_last, c_last, c_bar_last)
+        _, hidden = model.lstm_cell.decay(cell_i, cell_bar_updated, gate_decay, gate_output, estimated_time)
+        lambda_all = F.softplus(model.hidden_lambda(hidden))
+        _, estimated_type = torch.max(lambda_all, dim=-1)
+        predicted_types.append(estimated_type.item())
+        print("process {0} over {1} is done".format(i, numb_tests))
+
+
+    log.write("\noriginal type:  ")
+    for item in original_types:
+        log.write(str(item))
+        log.write(" ")
+    log.write("\npredicted_type: ")
+    for item in predicted_types:
+        log.write(str(item))
+        log.write(" ")
+    
+    total_numb = len(original_types)
+    numb_correct = 0
+    for idx in range(total_numb):
+        if predicted_types[idx] == original_types[idx]:
+            numb_correct += 1
+    log.write("\ncorrectness: {0}".format(numb_correct/total_numb))
+
+    error = 1 - numb_correct/total_numb
+
+    # print(len(estimated_times))
+    # print(len(original_time))
+    rmse = sqrt(mean_squared_error(original_durations, predicted_durations))
+    figure, ax = plt.subplots(2,2)
+    figure.suptitle(dataset+" by Neural Hawkes")
+    ax[0,0].plot(original_durations, label="actual")
+    ax[0,0].plot(predicted_durations, label="predicted")
+    ax[0,0].set_xlabel("Sequence Index")
+    ax[0,0].set_ylabel("Time Duration")
+    ax[0,0].legend()
+    ax[0,1].bar(x=1, height=rmse)
+    ax[0,1].set_title("RMSE")
+    ax[0,1].annotate(str(round(rmse,3)),xy=[1, rmse])
+    ax[1,0].bar(x=1, height=error)
+    ax[1,0].set_title("Error")
+    ax[1,0].annotate(str(round(error,3)),xy=[1, error])
+    ax[1,1].set_visible(False)
+    figure.tight_layout()
+    plt.savefig("result.png")
+    print("testing done.. Please check the plots for estimated duration and type intensity")
+    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--dataset", type=str, help="e.g hawkes. Must be the same as the training data in training model")
     parser.add_argument("--test_type", type=int,
-                        help="What test to do. 1 - duration, intensity, and rmse plot in KDD using KDD's data;-2 log likelihood test",
+                        help="What test to do. 1 - duration, intensity, and rmse plot in KDD using KDD's data;2 - log likelihood test" + 
+                        "3 - test on accuracy of types of known duration;4 - test on accuracy of duration and types of unknown duration",
                         default=1)
     parser.add_argument("--n_samples", type=int, help="number of samples of monte carlo integration in test 1",
                         default=10000)
@@ -132,9 +270,19 @@ if __name__ == "__main__":
         type_size = 1
         type_test = utils.get_index_txt(time_duration)
         time_duration, type_test = utils.padding_full(time_duration, type_test, seq_lens_list, type_size)
-    elif dataset == 'conttime' or dataset == "data_hawkes" or dataset == "data_hawkeshib":
+    elif dataset == 'conttime' or dataset == "data_hawkes" or dataset == "data_hawkeshib": 
         file_path = 'data/' + dataset + "/test.pkl"
         type_size = 8
+        time_duration, type_test, seq_lens_list = utils.open_pkl_file(file_path, 'test')
+        time_duration, type_test = utils.padding_full(time_duration, type_test, seq_lens_list, type_size)
+    elif dataset == 'data_mimic1' or dataset == 'data_mimic2' or dataset == 'data_mimic3' or dataset == 'data_mimic4' or dataset == 'data_mimic5':
+        file_path = 'data/' + dataset + "/test.pkl"
+        type_size = 75
+        time_duration, type_test, seq_lens_list = utils.open_pkl_file(file_path, 'test')
+        time_duration, type_test = utils.padding_full(time_duration, type_test, seq_lens_list, type_size)
+    elif dataset == 'data_so1' or dataset == 'data_so2' or dataset == 'data_so3' or dataset == 'data_so4' or dataset == 'data_so5':
+        file_path = 'data/' + dataset + "/test.pkl"
+        type_size = 22
         time_duration, type_test, seq_lens_list = utils.open_pkl_file(file_path, 'test')
         time_duration, type_test = utils.padding_full(time_duration, type_test, seq_lens_list, type_size)
     else:
@@ -167,6 +315,10 @@ if __name__ == "__main__":
             log.write(" ")
     elif test_type == 2:
         test2(time_duration, type_test, seq_lens_list, device, log)
+    elif test_type == 3:
+        test3(time_duration, seq_lens_list, type_test, n_samples, dataset, log)
+    elif test_type == 4:
+        test4(time_duration, seq_lens_list, type_test, n_samples, dataset, log)
     else:
         print("Other tests have not been developed yet.")
         log.close()

@@ -58,6 +58,16 @@ if __name__ == "__main__":
         type_size = 8
         time_duration, type_train, seq_lens_list = utils.open_pkl_file(file_path, 'train')
         time_duration, type_train = utils.padding_full(time_duration, type_train, seq_lens_list, type_size)
+    elif dataset == 'data_mimic1' or dataset == 'data_mimic2' or dataset == 'data_mimic3' or dataset == 'data_mimic4' or dataset == 'data_mimic5':
+        file_path = 'data/' + dataset + "/train.pkl"
+        type_size = 75
+        time_duration, type_train, seq_lens_list = utils.open_pkl_file(file_path, 'train')
+        time_duration, type_train = utils.padding_full(time_duration, type_train, seq_lens_list, type_size)
+    elif dataset == 'data_so1' or dataset == 'data_so2' or dataset == 'data_so3' or dataset == 'data_so4' or dataset == 'data_so5':
+        file_path = 'data/' + dataset + "/train.pkl"
+        type_size = 22
+        time_duration, type_train, seq_lens_list = utils.open_pkl_file(file_path, 'train')
+        time_duration, type_train = utils.padding_full(time_duration, type_train, seq_lens_list, type_size)
     else:
         print("Data process file for other types of datasets have not been developed yet, or the dataset is not found")
         log.write("\nData process file for other types of datasets have not been developed yet, or the datase is not found")
@@ -78,7 +88,7 @@ if __name__ == "__main__":
     if used_model:
         model = torch.load("model.pt")
     else:
-        model = conttime.Conttime(n_types=type_size+1, lr=lr)
+        model = conttime.Conttime(n_types=type_size, lr=lr)
 
     if torch.cuda.is_available():
         device = torch.device('cuda')
