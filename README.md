@@ -88,7 +88,29 @@ The dataset in this repository is truncated from the original data due to the la
 ## Testing Results:
 1. The first test is training the model with data named "conttime" described in Hongyuan Mei's Paper with lr = 0.01, epochs = 30, mini batch size = 10. The log likelihood (not negative log likelihood) during the training has the plot ![log-likelihood-graph](https://user-images.githubusercontent.com/54515153/85951273-1af42c80-b930-11ea-8193-9bade5181951.jpg)
 <bre />
-When we test our trained model with the test file named test.pkl, we get log-likelihood over the seqs is -0.99, log-likelihood over the type is -1.44, and log-likelihood over the time is 0.447. All these numbers fit the range described inside the paper section C2, where log-likelihood over seqs, type and time should be -1.00 to -0.98, -1.44 to -1.43, and -0.440 to 0.455 accordingly. This test shows that the model we built is the model described inside the paper.
+Test results:
+<table>
+  <tr>
+    <th></th>
+    <th>Model Result</th>
+    <th>Result on Paper</th>
+  </tr>
+  <tr>
+    <td>log-likelihood over seqs</td>
+    <td>-0.99</td>
+    <td>-1.00 to -0.98</td>
+  </tr>
+  <tr>
+    <td>log-likelihood over time</td>
+    <td>0.447</td>
+    <td>0.440 to 0.455</td>
+  </tr>
+  <tr>
+    <td>lo-likelihood over type</td>
+    <td>-1.44</td>
+    <td>-1.44 to -1.43</td>
+ </table>
+
 <br/><br/>
 
 2. We also test out model with data provided in Du, Nan, et al. [“Recurrent Marked Temporal Point Processes.”](https://www.kdd.org/kdd2016/subtopic/view/recurrent-temporal-point-process) paper about self-correcting and hawkes. We train the model for 10 epochs with learning rate = 0.01 and truncated sequence length = 75. (Picture stack below from left to right, from top to bottom are result by Neural Hawkes, RMTPP, and Du Nan's Paper)<br />
