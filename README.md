@@ -2,11 +2,17 @@
 This repository is a more concise and simpler pytorch implementation of the model in paper Hongyuan Mei, Jason Eisner [The Neural Hawkes Process: A Neurally Self-Modulating Multivariate Point Process](https://arxiv.org/abs/1612.09328)
 
 ## Introduction:
-A sequence of events with different types are often generated in our lives. Some of the event type in the history may increase of decrease the probability of other types of events in the future. For example, one disease may cause the likelihood of another disease and using some type of medicine may decrease the likelihood of another disease. A basic model that captures this feature is non-homogenuous poission process, where the probability of of event type k occurs at time t, in an small range [t, t+dt] has probability <img src="https://render.githubusercontent.com/render/math?math=\lambda _{k}(t)dt">. This is <img src="https://render.githubusercontent.com/render/math?math=\lambda"> is known as the intensity function. The total intensity funciton is given by <img src="https://render.githubusercontent.com/render/math?math=\lambda (t) = \sum_{0}^{K} \lambda _{k} (t)"><br>
-
-The problem we care about is to predict when will the next event happens and what will be the event type. That is given a stream of event of form:
+A sequence of events with different types are often generated in our lives. For instance, a patient may be diagnosed with different diseases in his or her record history; a kind of stock may be sold or bought several times in a given day. We can define that the i<sup>th</sup> event in such a sequence above is a tuple (k<sub>i</sub>, t<sub>i</sub>) where k<sub>i</sub> denote the type of the event and t<sub>i</sub> denote when does this event happens. Therefore, a sequence of events can be represented in a sequence of such tuples above. Such sequences are usually called Marked Point Process or Multivariate Point Process. The problem we care about is to predict when will the next event happens and what will be the event type given a stream of events.That is given a stream of event of form:
 <pre>(k<sub>1</sub>, t<sub>1</sub>), (k<sub>2</sub>, t<sub>2</sub>), (k<sub>3</sub>, t<sub>3</sub>) ... (k<sub>n</sub>, t<sub>n</sub>)</pre>
 we want to predict the next event time and type (k<sub>n+1</sub>, t<sub>n+1</sub>)<br>
+## Previous Work and Background Knowledge
+
+### Intensity Function in Point Process
+![Intensity1](https://user-images.githubusercontent.com/54515153/87831529-52fae980-c8b6-11ea-8bbe-be58d2841117.JPG)
+![Intensity2](https://user-images.githubusercontent.com/54515153/87831532-54c4ad00-c8b6-11ea-82c2-6ad6b43a4cca.JPG)<br>
+Please refer to [J. G. Rasmussen. Temporal point processes: the
+conditional intensity function. 2009.](https://arxiv.org/abs/1806.00221) for proof and detailed math formular deductions in the place with mark [1] above.
+
 ## Model Description:
 The model is highly based on LSTM. This [website](https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21) provides a quick introduction to a typical LSTM model and background knowledge in Deep Learning. 
 #### Model 
@@ -183,3 +189,6 @@ The Electron Medical Record (MIMIC II) is a collection of de-identified clinical
 
 ## Acknowledgement:
 This model is built by Hongrui Lyu, supervised by Hyunouk Ko and Dr. Huo. The file cont-time-cell is just a copy from Hongyuan Mei's code, but all other files are written by us. As notice by the original github page of pytorch implementation, this [license](https://github.com/HMEIatJHU/neural-hawkes-particle-smoothing/blob/master/LICENSE) need to be included. 
+
+## Reference:
+
