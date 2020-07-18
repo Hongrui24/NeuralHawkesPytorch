@@ -8,37 +8,28 @@ we want to predict the next event time and type (k<sub>n+1</sub>, t<sub>n+1</sub
 ## Previous Work and Background Knowledge
 
 ### Intensity Function in Point Process
-![Intensity1](https://user-images.githubusercontent.com/54515153/87831529-52fae980-c8b6-11ea-8bbe-be58d2841117.JPG)
+![Intensity1](https://user-images.githubusercontent.com/54515153/87855728-2fe92d80-c8e8-11ea-818a-758e1b84f06f.JPG)
 ![Intensity2](https://user-images.githubusercontent.com/54515153/87831532-54c4ad00-c8b6-11ea-82c2-6ad6b43a4cca.JPG)<br>
 Please refer to [J. G. Rasmussen. Temporal point processes: the
 conditional intensity function. 2009.](https://arxiv.org/abs/1806.00221) for proof and detailed math formular deductions in the place with mark [1] above.
 
+### Hawkes Process
+![Hawkes](https://user-images.githubusercontent.com/54515153/87855731-32e41e00-c8e8-11ea-89a4-00f1711508f9.JPG)
+
+### LSTM
+![LSTM1](https://user-images.githubusercontent.com/54515153/87856492-991f6f80-c8ed-11ea-9bae-362e3a0c3fa2.JPG)
+![LSTM2](https://user-images.githubusercontent.com/54515153/87855736-37103b80-c8e8-11ea-8196-516a4e644b82.JPG)
+![LSTM3](https://user-images.githubusercontent.com/54515153/87855831-e0573180-c8e8-11ea-933e-2e5829cafda4.JPG)<br>
+To learn more about how Neural Network, RNN an LSTM works, [Dive into Deep Learning](https://d2l.ai/) is a good source. 
+
 ## Model Description:
-The model is highly based on LSTM. This [website](https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21) provides a quick introduction to a typical LSTM model and background knowledge in Deep Learning. 
-#### Model 
-The following is a recap of the paper by Hongyuan Mei:<br>
-We use continuous-time LSTM, a type of recurrent network to model the Hawkes Process. The model is called continuous because the memory cell c will decay exponentially to some constant value c̅ with rate <img src="https://render.githubusercontent.com/render/math?math=\delta">, and the value of cell c and c̅ will be updated once the model get input (k<sub>i</sub>, t<sub>i</sub>).<br>
-Because in the model's decaying architecture, it calculates the inter-event duration. Thus, the input to the model will be (k<sub>i</sub>, d<sub>i</sub>) instead, where d<sub>i</sub> = t<sub>i</sub> - t<sub>i-1</sub>, and d<sub>1</sub> = t<sub>1</sub>. Before input the event sequence into our model, we will pad an event <k<sub>0</sub>, d<sub>0</sub>> = <k, 0> to start the sequence for initializing value of LSTM to the sequence. For each LSTM cell, we first embed the event type k<sub>i</sub> into a vector K<sub>i</sub> of size k+1, and feed the vector into the LSTM cell. The cell is updated by the following equations:
-<pre><img src="https://render.githubusercontent.com/render/math?math=i_{{\imath}+1} = sigmoid(W_ik_{\imath} \oplus U_ih(t_{\imath}) \oplus d_i)">
-<img src="https://render.githubusercontent.com/render/math?math=f_{{\imath}+1} = sigmoid(W_fk_{\imath} \oplus U_fh(t_{\imath}) \oplus d_f)">
-<img src="https://render.githubusercontent.com/render/math?math=z_{{\imath}+1} = tanh(W_zk_{\imath} \oplus U_zh(t_{\imath}) \oplus d_z)">
-<img src="https://render.githubusercontent.com/render/math?math=o_{{\imath}+1} = sigmoid(W_ok_{\imath} \oplus U_oh(t_{\imath}) \oplus d_o)">
-<img src="https://render.githubusercontent.com/render/math?math=c_{{\imath}+1} = f_{i+1} \times c(t_i) \oplus i_{\imath+1} \times z_{\imath+1}">
-<img src="https://render.githubusercontent.com/render/math?math=\bar{c_{\imath+1}} =  \bar{f_{\imath+1}} \times \bar{c_i} \oplus \bar{i_{\imath+1}} \times z_{\imath+1}">
-<img src="https://render.githubusercontent.com/render/math?math=\delta_{\imath+1} = softplus(W_dk_{\imath} \oplus U_dh(t_i) \oplus d_d)"></pre>
 
-The memory cell's value is decaying though time by the equation below:
-<pre><img src="https://render.githubusercontent.com/render/math?math=c(t) = \bar{c_{i+1}} \oplus (c_{i+1} - \bar{c_{i+1}})e^{-\delta_{i+1} (t-t_{i})} = \bar{c_{i+1}} \oplus (c_{i+1} - \bar{c_{i+1}})e^{-\delta d_{i}}"></pre>
-
-Then we may get the value of hidden layer of the LSTM and intensity function of Hawkes's process by:
-<pre><img src="https://render.githubusercontent.com/render/math?math=h(t) = o_{i} \otimes tanh(c(t))">
-<img src="https://render.githubusercontent.com/render/math?math=\lambda_{k}(t) = softplus(w_{k}^{T} h(t))"></pre>
-
-During the training, we minimize the negative log likelihood below:
-<pre><img src="https://render.githubusercontent.com/render/math?math=-l = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  \oplus \int_{0}^{T}\lambda(t)dt = -\sum_{i:t_i\le T} log\lambda _{k_{i}} (t_{i})  \oplus \Lambda"></pre></pre>
-
-The interal above is estimated by the Monte Carlo method described below:
-![monte carlo](https://user-images.githubusercontent.com/54515153/86408991-0bede100-bc86-11ea-97a3-d09e69ed7c40.JPG)
+### Model and Model Training
+![training1](https://user-images.githubusercontent.com/54515153/87862402-bb30e600-c91d-11ea-867c-1d82f90ff361.JPG)
+![training2](https://user-images.githubusercontent.com/54515153/87862403-bd934000-c91d-11ea-85b2-5aa80093b448.JPG)
+![training3](https://user-images.githubusercontent.com/54515153/87862406-bec46d00-c91d-11ea-9246-a1a0edef354e.JPG)
+![training4](https://user-images.githubusercontent.com/54515153/87862407-c08e3080-c91d-11ea-83cb-c99e1cbc090e.JPG)
+![training5](https://user-images.githubusercontent.com/54515153/87862408-c1bf5d80-c91d-11ea-9a79-61e9eb1567f3.JPG)
 
 #### Prediction on Time (duration) and types:
 As described in the paper once we have calculated the intensity function λ(t) for the time t in the future, the density function at time t is given by :
