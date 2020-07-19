@@ -67,8 +67,7 @@ Type the commands blow cell by cell:
 <pre>!cd NeuralHawkesPytorch</pre>
 Then you can type the command in this section 2. and 3. to train and test the model. 
 
-5. Notice:
-The dataset in this repository is truncated from the original data due to the large dataset and long training time. You may train the data in this repository with at least 20 epochs to get a similar result below. The training process takes about 30 minutes, and the original dataset may be trained for at least 4 hours for about 10 epochs. The original dataset can be found in [this page](https://github.com/dunan/NeuralPointProcess/tree/master/data/synthetic) and [here](https://github.com/HMEIatJHU/neurawkes/tree/master/data)
+
 ## Testing:
 ### Data Source and Structure:
 We use the data provided by the Hongyuan Mei and Du Nan to do tests. 
@@ -104,6 +103,15 @@ We use the data provided by the Hongyuan Mei and Du Nan to do tests.
     <td>31</td>
   </tr>
   <tr>
+    <td>SO(Stack Overflow) (1)(2)(3)(4)(5)</td>
+    <td>Real World Dataset</td>
+    <td>22</td>
+    <td>4777</td>
+    <td>1326</td>
+    <td>72</td>
+    <td>41</td>
+    <td>736</td>
+  <tr>
     <td>hawkes, self-correcting</td>
     <td>Simulated</td>
     <td>1</td>
@@ -114,13 +122,18 @@ We use the data provided by the Hongyuan Mei and Du Nan to do tests.
     <td>train: 1406, testing: 156</td>
 </table>
 Description of MIMIC II Datasets<br>
-The Electron Medical Record (MIMIC II) is a collection of de-identified clinical visit of Intensice Care Unite patient for 7 years. Each event in the dataset is a record of its time stamp and disease diagnosis. 
+The Electron Medical Record (MIMIC II) is a collection of de-identified clinical visit of Intensice Care Unite patient for 7 years. Each event in the dataset is a record of its time stamp and disease diagnosis. <br>
+Description of SO (Stack Overflow) Datasets<br>
+The Stack Overflow dataset represents two years of user awards on a question-answering website: each user received a sequence of badges<br>
+Notice:
+The dataset in this repository is truncated from the original data due to the large dataset and long training time. You may train the data in this repository with at least 20 epochs to get a similar result below. The training process takes about 30 minutes, and the original dataset may be trained for at least 4 hours for about 10 epochs. The original dataset can be found in [this page](https://github.com/dunan/NeuralPointProcess/tree/master/data/synthetic) and [here](https://github.com/HMEIatJHU/neurawkes/tree/master/data)
 
+<br><br><br>
 ### Test Results
 
 #### Log-Likelihood Test on 'data_conttime'
 
-1. The first test we do is to calculate average log-likelihood of events in test file of "data_conttime", and compare the results in Hongyuan Mei's paper. The model is trained with lr = 0.01, epochs = 30, mini batch size = 10.<bre />
+The first test we do is to calculate average log-likelihood of events in test file of "data_conttime", and compare the results in Hongyuan Mei's paper. The model is trained with lr = 0.01, epochs = 30, mini batch size = 10.<bre />
 Test results:
 <table>
   <tr>
@@ -143,9 +156,12 @@ Test results:
     <td>-1.44</td>
     <td>-1.44 to -1.43</td>
  </table>
+<br>
+We use this test to verify that our pytorch implementation of Neural Hawkes is the Neural Hawkes model described in Hongyuan Mei's paper. 
+<br/><br/><br>
 
-<br/><br/>
 
+#### Test on 'hawkes' and 'self-correcting':
 2. We also test out model with data provided in Du, Nan, et al. [“Recurrent Marked Temporal Point Processes.”](https://www.kdd.org/kdd2016/subtopic/view/recurrent-temporal-point-process) paper about self-correcting and hawkes. We make predictions on inter-event durations, intensities, and calculate RMSE between real inter-event durations and our predictions for events in a test sequence. We also compare the results with Du Nan's RMTPP's prediction and optimal prediction. We train the model for 10 epochs with learning rate = 0.01 and truncated sequence length = 75. <br />
 - Result of "hawkes":
 ![result](https://user-images.githubusercontent.com/54515153/87882323-5765f600-c9cd-11ea-887e-9ee920b41900.png)
@@ -154,17 +170,94 @@ Test results:
 - Result of "self-correcting"
 ![result](https://user-images.githubusercontent.com/54515153/87882330-5f259a80-c9cd-11ea-9d32-d19841026baf.png)
 ![Self-correcting](https://user-images.githubusercontent.com/54515153/87882419-e07d2d00-c9cd-11ea-9b3e-12004245fb7c.JPG)
+ <br>
+ This test show that Neural Hawkes model has the ability to achieve the prediction by optimal equation (prediction made by actual equation behind the dataset) for hawkes and self-correcting.
+ <br><br><br>
  
+ #### Test on 'MIMIC-II' and 'SO'
+The third test we do is to test on type prediction accuracy. We choose two dataset to do the test: 'MIMICii' and 'SO' (Stack Overflow). For testing, we input a sequence in testing file except the last event to the trained model trained by 'train.pkl' and compare the model prediction with the actual one for the last event. For testing purpose, we also look at how loss and prediction accuracy on types changes with number of epochs, and we compare the type prediction accuracy with the prediction accuracy by pytorch implementation of RMTPP.<br><br>
+Model During Training:
+![training](https://user-images.githubusercontent.com/54515153/87884965-14614e00-c9e0-11ea-821b-ff3182ae2d01.jpg)
+<br>
+Testing Results on MIMIC-II:
+<table>
+  <tr>
+    <th>Dataset</th>
+    <th>(# epochs, lr)Error by Neural Hawkes</th>
+    <th>(# epochs, lr)Error by RMTPP</th>
+  </tr>
+  <tr>
+    <td>data_mimic1</td>
+    <td>(200, 0.001) 10.8%</td>
+    <td>(700, 0.0005) 20%</td>
+  </tr>
+  <tr>
+    <td>data_mimic2</td>
+    <td>(300, 0.001) 16.9%</td>
+    <td>(900, 0.0005) 38.5%</td>
+  </tr>
+  <tr>
+    <td>data_mimic3</td>
+    <td>(200, 0.001) 16.9%</td>
+    <td>(900, 0.0005) 32.3%</td>
+  </tr>
+  <tr>
+    <td>data_mimic4</td>
+    <td>(200, 0.001) 20% </td>
+    <td>(2000, 0.0002)36.9% </td>
+  </tr>
+  <tr>
+    <td>data_mimic5</td>
+    <td>(200, 0.001) 9.2%</td>
+    <td>(2000, 0.0002) 35.4%</td>
+  </tr>
+  <tr>
+    <td>MIMIC-II Average</td>
+    <td>(---, ----)14.76%</td>
+    <td>(---, ----)32.62%</td>
+  </tr>
+</table>
+<br><br>
+Testing Results on SO dataset:
+<table>
+  <tr>
+    <th>Dataset</th>
+    <th> (epochs, lr)Error by Neural Hawkes</th>
+  </tr>
+  <tr>
+    <td>data_so1</td>
+    <td>(20, 0.01) 62%</td>
+  </tr>
+  <tr>
+    <td>data_so1</td>
+    <td>(20, 0.01) 61.5</td>
+  </tr>
+  <tr>
+    <td>data_so1</td>
+    <td>(20, 0.01) 59.5%</td>
+  </tr>
+  <tr>
+    <td>data_so1</td>
+    <td>(20, 0.01) 63%</td>
+  </tr>
+  <tr>
+    <td>data_so1</td>
+    <td>(20, 0.01) 62.3%</td>
+  </tr>
+  <tr>
+    <td>average</td>
+    <td>(--, ---) 61.66%</td>
+  </tr>
+</table>
+<br>
 
-#### Generation of "data_hawkes", "data_hawkeshib", and "conttime":
-The dataset 'data_hawkes' is generated by model of typical multivariate Hawkes process, 'data_hawkeshib' is generated by model of Hawkes Process with Inhibition (proposed by Hongyuan Mei), where positive constraints on base intensity and degree of activation are released, and 'conttime' is generated by the Neural Hawkes model. Events in each sequence are generated by Thinning algorithm.<br>
-The main idea of Thinning algorithm for multivariate Hawkes Process is to generate time based on poisson process with intensity <img src="https://render.githubusercontent.com/render/math?math=\lambda^* \ge \lambda _k">, and accept the point with probability <img src="https://render.githubusercontent.com/render/math?math=\frac{\lambda_k}{\lambda^*}"> for each event type k in time (t_i, <img src="https://render.githubusercontent.com/render/math?math=\infty">) Then, we select the most recent time and type among K types for the next event (k<sub>i+1</sub>, t<sub>i+1</sub>).<br>
-
-
-
-
-
-
+#### Thoughts on Testing Results:
+The prediction on types achieve a lower error rate on MIMIC-II dataset than Stack Overflow dataset. This may caused by a simplier type sequence on MIMIC-II dataset. That is event types in single sequence of MIMIC-II seldom changes. The following is a sample print out of a sequence in MIMIC-II and SO:<br>
+Sample MIMIC-II Sequence:<br>
+![mimic](https://user-images.githubusercontent.com/54515153/87886526-eb46ba80-c9eb-11ea-9f00-e88ec72f93d3.JPG)<br><br>
+Sample SO Sequence:<br>
+![so](https://user-images.githubusercontent.com/54515153/87886575-5c866d80-c9ec-11ea-80fc-63c911c810a2.JPG)<br>
+Thus, the better prediction on types in MIMIC-II dataset may caused by the the recurrence of same event type in each sequence. 
 
 ## Acknowledgement:
 This model is built by Hongrui Lyu, supervised by Hyunouk Ko and Dr. Huo. The file cont-time-cell is just a copy from Hongyuan Mei's code, but all other files are written by us. As notice by the original github page of pytorch implementation, this [license](https://github.com/HMEIatJHU/neural-hawkes-particle-smoothing/blob/master/LICENSE) need to be included. 
