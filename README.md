@@ -262,5 +262,4 @@ Thus, the better prediction on types in MIMIC-II dataset may caused by the the r
 ## Acknowledgement:
 This model is built by Hongrui Lyu, supervised by Hyunouk Ko and Dr. Huo. The file cont-time-cell is just a copy from Hongyuan Mei's code, but all other files are written by us. As notice by the original github page of pytorch implementation, this [license](https://github.com/HMEIatJHU/neural-hawkes-particle-smoothing/blob/master/LICENSE) need to be included. 
 
-## Reference:
 
