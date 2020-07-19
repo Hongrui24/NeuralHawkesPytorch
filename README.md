@@ -125,8 +125,10 @@ Description of MIMIC II Datasets<br>
 The Electron Medical Record (MIMIC II) is a collection of de-identified clinical visit of Intensice Care Unite patient for 7 years. Each event in the dataset is a record of its time stamp and disease diagnosis. <br>
 Description of SO (Stack Overflow) Datasets<br>
 The Stack Overflow dataset represents two years of user awards on a question-answering website: each user received a sequence of badges<br>
-Notice:
-The dataset in this repository is truncated from the original data due to the large dataset and long training time. You may train the data in this repository with at least 20 epochs to get a similar result below. The training process takes about 30 minutes, and the original dataset may be trained for at least 4 hours for about 10 epochs. The original dataset can be found in [this page](https://github.com/dunan/NeuralPointProcess/tree/master/data/synthetic) and [here](https://github.com/HMEIatJHU/neurawkes/tree/master/data)
+
+Notice:<br>
+
+The dataset 'data_hawkes', 'data_hawkeshib', 'conttime', 'hawkes', 'data_so', and 'self-correcting' in this repository is truncated from the original data due to uploading difficulty and long training time. You may train the data in this repository with more epochs to get a similar result below. The original dataset can be found in [this page](https://github.com/dunan/NeuralPointProcess/tree/master/data/synthetic) and [here](https://github.com/HMEIatJHU/neurawkes/tree/master/data)
 
 <br><br><br>
 ### Test Results
