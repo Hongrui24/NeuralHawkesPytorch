@@ -2,7 +2,7 @@
 This repository is a more concise and simpler pytorch implementation of the model in paper Hongyuan Mei, Jason Eisner [The Neural Hawkes Process: A Neurally Self-Modulating Multivariate Point Process](https://arxiv.org/abs/1612.09328)
 
 ## Introduction:
-A sequence of events with different types are often generated in our lives. For instance, a patient may be diagnosed with different diseases in his or her record history; a kind of stock may be sold or bought several times in a given day. We can define that the i<sup>th</sup> event in such a sequence above is a tuple (k<sub>i</sub>, t<sub>i</sub>) where k<sub>i</sub> denote the type of the event and t<sub>i</sub> denote when does this event happens. Therefore, a sequence of events can be represented in a sequence of such tuples above. Such sequences are usually called Marked Point Process or Multivariate Point Process. The problem we care about is to predict when will the next event happens and what will be the event type given a stream of events.That is given a stream of event of form:
+A sequence of events with different types are often generated in our lives. For instance, a patient may be diagnosed with different diseases in his or her record history; a kind of stock may be sold or bought several times in a given day. We can define that the i<sup>th</sup> event in such a sequence above is a tuple (k<sub>i</sub>, t<sub>i</sub>) where k<sub>i</sub> denote the type of the event and t<sub>i</sub> denote when does this event happen. Therefore, a sequence of events can be represented in a sequence of such tuples above. Such sequences are usually called Marked Point Process or Multivariate Point Process. The problem we care about is to predict when will the next event happens and what will be the event type given a stream of events.That is given a stream of event of form:
 <pre>(k<sub>1</sub>, t<sub>1</sub>), (k<sub>2</sub>, t<sub>2</sub>), (k<sub>3</sub>, t<sub>3</sub>) ... (k<sub>n</sub>, t<sub>n</sub>)</pre>
 we want to predict the next event time and type (k<sub>n+1</sub>, t<sub>n+1</sub>)<br>
 ## Previous Work and Background Knowledge
@@ -31,7 +31,7 @@ To learn more about how Neural Network, RNN an LSTM works, [Dive into Deep Learn
 ![training4](https://user-images.githubusercontent.com/54515153/87862407-c08e3080-c91d-11ea-83cb-c99e1cbc090e.JPG)
 ![training5](https://user-images.githubusercontent.com/54515153/87862408-c1bf5d80-c91d-11ea-9a79-61e9eb1567f3.JPG)
 
-#### Prediction on Time (duration) and types:
+### Prediction on Time (duration) and types:
 ![testing1](https://user-images.githubusercontent.com/54515153/87878387-e8c76f00-c9b1-11ea-87bd-98409d5f44cd.JPG)
 ![testing2](https://user-images.githubusercontent.com/54515153/87878388-ea913280-c9b1-11ea-8d94-bd819ed4b949.JPG)
 ![testing3](https://user-images.githubusercontent.com/54515153/87878389-ec5af600-c9b1-11ea-915d-de6e0fce9e1e.JPG)
