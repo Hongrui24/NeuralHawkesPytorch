@@ -176,7 +176,7 @@ We use this test to verify that our pytorch implementation of Neural Hawkes is t
  <br><br><br>
  
  #### Test on 'MIMIC-II' and 'SO'
-The third test we do is to test on type prediction accuracy. We choose two dataset to do the test: 'MIMICii' and 'SO' (Stack Overflow). For testing, we input a sequence in testing file except the last event to the trained model trained by 'train.pkl' and compare the model prediction with the actual one for the last event. For testing purpose, we also look at how loss and prediction accuracy on types changes with number of epochs, and we compare the type prediction accuracy with the prediction accuracy by pytorch implementation of RMTPP.<br><br>
+The third test we do is to test on type prediction accuracy. We choose two dataset to do the test: 'MIMICii' and 'SO' (Stack Overflow). For testing, we input a sequence in testing file except the last event to the trained model trained by 'train.pkl' and compare the model prediction with the actual one for the last event. For testing purpose, we also look at how loss and prediction accuracy on types changes with number of epochs, and we compare the type prediction accuracy with the prediction accuracy by pytorch implementation of [RMTPP](https://github.com/Hongrui24/RMTPP-pytorch).<br><br>
 Model During Training:
 ![training](https://user-images.githubusercontent.com/54515153/87884965-14614e00-c9e0-11ea-821b-ff3182ae2d01.jpg)
 <br>
