@@ -54,24 +54,25 @@ def test1(time_duration, seq_lens_list, type_test, n_sample, dataset):
         estimated_types.append(estimated_type.item())
         lambda_sum = torch.sum(lambda_all, dim=-1)
         estimated_intensities.append(lambda_sum.item())
+        print("prediction at event {0} on a sequence of length {1} is done".format(idx, max_len))
 
     # print(len(estimated_times))
     # print(len(original_time))
     rmse = sqrt(mean_squared_error(original_time, estimated_times))
-    figure, ax = plt.subplots(2,2)
+    figure, ax = plt.subplots(nrows=1, ncols=3, figsize=(12, 3))
     figure.suptitle(dataset+" by Neural Hawkes")
-    ax[0,0].plot(original_time, label="actual")
-    ax[0,0].plot(estimated_times, label="predicted")
-    ax[0,0].set_xlabel("Time Index")
-    ax[0,0].set_ylabel("Time Duration")
-    ax[0,0].legend()
-    ax[0,1].plot(range(100),estimated_intensities)
-    ax[0,1].set_xlabel("Time Index")
-    ax[0,1].set_ylabel("Intensity")
-    ax[1,0].bar(x=1, height=rmse)
-    ax[1,0].set_title("RMSE")
-    ax[1,0].annotate(str(round(rmse,3)),xy=[1, rmse])
-    ax[1,1].set_visible(False)
+    ax[0].plot(original_time, label="actual")
+    ax[0].plot(estimated_times, label="predicted")
+    ax[0].set_xlabel("Time Index")
+    ax[0].set_ylabel("Time Duration")
+    ax[0].legend()
+    ax[1].plot(estimated_intensities)
+    ax[1].set_xlabel("Time Index")
+    ax[1].set_ylabel("Intensity")
+    ax[2].bar(x=1, height=rmse)
+    ax[2].set_title("time RMSE")
+    ax[2].annotate(str(round(rmse,3)),xy=[1, rmse])
+    plt.subplots_adjust(top=0.45)
     figure.tight_layout()
     plt.savefig("result.png")
     print("testing done.. Please check the plots for estimated duration and intensity")
@@ -141,9 +142,12 @@ def test3(time_durations, seq_lens_lists, type_tests, n_samples, dataset, log):
     log.write("\ncorrectness: {0}".format(numb_correct/total_numb))
 
     error = 1 - numb_correct/total_numb
-    figure, ax = plt.subplots(1,1)
+    figure, ax = plt.subplots(1,1,figsize=(3,3))
     figure.suptitle(dataset+" by Neural Hawkes")
     ax.bar(x=1, height=error)
+    ax.set_title('type prediction error')
+    ax.annotate(str(round(error,3)),xy=[1, error])
+    plt.subplots_adjust(top=0.8)
     plt.savefig("result.png")
 
         
@@ -220,20 +224,20 @@ def test4(time_durations, seq_lens_lists, type_tests, n_samples, dataset, log):
     # print(len(estimated_times))
     # print(len(original_time))
     rmse = sqrt(mean_squared_error(original_durations, predicted_durations))
-    figure, ax = plt.subplots(2,2)
+    figure, ax = plt.subplots(nrows=1, ncols=3, figsize=(12, 3))
     figure.suptitle(dataset+" by Neural Hawkes")
-    ax[0,0].plot(original_durations, label="actual")
-    ax[0,0].plot(predicted_durations, label="predicted")
-    ax[0,0].set_xlabel("Sequence Index")
-    ax[0,0].set_ylabel("Time Duration")
-    ax[0,0].legend()
-    ax[0,1].bar(x=1, height=rmse)
-    ax[0,1].set_title("RMSE")
-    ax[0,1].annotate(str(round(rmse,3)),xy=[1, rmse])
-    ax[1,0].bar(x=1, height=error)
-    ax[1,0].set_title("Error")
-    ax[1,0].annotate(str(round(error,3)),xy=[1, error])
-    ax[1,1].set_visible(False)
+    ax[0].plot(original_durations, label="actual")
+    ax[0].plot(predicted_durations, label="predicted")
+    ax[0].set_xlabel("Sequence Index")
+    ax[0].set_ylabel("Time Duration")
+    ax[0].legend()
+    ax[1].bar(x=1, height=rmse)
+    ax[1].set_ylabel("time RMSE")
+    ax[1].annotate(str(round(rmse,3)),xy=[1, rmse])
+    ax[2].bar(x=1, height=error)
+    ax[2].set_ylabel("Type Prediction Error")
+    ax[2].annotate(str(round(error,3)),xy=[1, error])
+    plt.subplots_adjust(top=0.5)
     figure.tight_layout()
     plt.savefig("result.png")
     print("testing done.. Please check the plots for estimated duration and type intensity")
@@ -265,7 +269,7 @@ if __name__ == "__main__":
 
     print("processing testing data set")
     if dataset == 'hawkes' or dataset == "self-correcting":
-        file_path = 'data/' + dataset + "/time_test.txt"
+        file_path = 'data/' + dataset + "/time-test.txt"
         time_duration, seq_lens_list = utils.open_txt_file(file_path)
         type_size = 1
         type_test = utils.get_index_txt(time_duration)
@@ -283,6 +287,12 @@ if __name__ == "__main__":
     elif dataset == 'data_so1' or dataset == 'data_so2' or dataset == 'data_so3' or dataset == 'data_so4' or dataset == 'data_so5':
         file_path = 'data/' + dataset + "/test.pkl"
         type_size = 22
+        time_duration, type_test, seq_lens_list = utils.open_pkl_file(file_path, 'test')
+        time_duration, type_test = utils.padding_full(time_duration, type_test, seq_lens_list, type_size)
+    elif dataset == 'data_book1' or dataset == 'data_book2' or dataset == 'data_book3' or dataset == 'data_book4'\
+    or dataset == 'data_book5':
+        file_path = 'data/' + dataset + "/test.pkl"
+        type_size = 3
         time_duration, type_test, seq_lens_list = utils.open_pkl_file(file_path, 'test')
         time_duration, type_test = utils.padding_full(time_duration, type_test, seq_lens_list, type_size)
     else:

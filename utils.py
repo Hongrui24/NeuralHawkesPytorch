@@ -2,6 +2,26 @@ import torch
 import pickle
 from torch.utils.data import DataLoader
 
+
+def open_pkl_file2(path, description):
+    with open(path, 'rb') as f:
+        data = pickle.load(f, encoding='latin1')
+        data = data[description]
+    time_durations = []
+    type_seqs = []
+    seq_lens = []
+    for i in range(len(data)):
+        end = 2
+        while end <= len(data[i]):
+            seq_lens.append(end)
+            type_seqs.append([[int(event['type_event']) for event in data[i][:end]]])
+            time_durations.append([[float(event['time_since_last_event']) for event in data[i][:end]]])
+            end += 1
+    return time_durations, type_seqs
+
+
+
+
 def open_pkl_file(path, description):
     with open(path, 'rb') as f:
         data = pickle.load(f, encoding='latin1')
