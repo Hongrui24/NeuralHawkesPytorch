@@ -1,38 +1,38 @@
 # Neural Hawkes Pytorch
-This repository is a more concise and simpler pytorch implementation of the model in paper Hongyuan Mei, Jason Eisner [The Neural Hawkes Process: A Neurally Self-Modulating Multivariate Point Process](https://arxiv.org/abs/1612.09328)
+This repository is a more concise and simpler pytorch implementation of the model in paper Hongyuan Mei, Jason Eisner [The Neural Hawkes Process: A Neurally Self-Modulating Multivariate Point Process](https://arxiv.org/abs/1612.09328).
 
 ## Introduction:
-A sequence of events with different types are often generated in our lives. For instance, a patient may be diagnosed with different diseases in his or her record history; a kind of stock may be sold or bought several times in a given day. We can define that the i<sup>th</sup> event in such a sequence above is a tuple (k<sub>i</sub>, t<sub>i</sub>) where k<sub>i</sub> denote the type of the event and t<sub>i</sub> denote when does this event happen. Therefore, a sequence of events can be represented in a sequence of such tuples above. Such sequences are usually called Marked Point Process or Multivariate Point Process. The problem we care about is to predict when will the next event happens and what will be the event type given a stream of events.That is given a stream of event of form:
+A sequence of events with different types is often generated in our lives. For instance, a patient may be diagnosed with different diseases in his or her record history; a kind of stock may be sold or bought several times in a given day. We can define that the i<sup>th</sup> event in such a sequence above is a tuple (k<sub>i</sub>, t<sub>i</sub>), where k<sub>i</sub> denote the type of the event and t<sub>i</sub> denote when does this event happen. Therefore, a sequence of events can be represented in a sequence of such tuples above. Such sequences are usually called Marked Point Process or Multivariate Point Process. The problem we care about is to predict when will the next event happens and what will be the event type given a stream of events.That is given a stream of event of form:
 <pre>(k<sub>1</sub>, t<sub>1</sub>), (k<sub>2</sub>, t<sub>2</sub>), (k<sub>3</sub>, t<sub>3</sub>) ... (k<sub>n</sub>, t<sub>n</sub>)</pre>
 we want to predict the next event time and type (k<sub>n+1</sub>, t<sub>n+1</sub>)<br>
 ## Previous Work and Background Knowledge
 
 ### Intensity Function in Point Process
 ![Intensity1](https://user-images.githubusercontent.com/54515153/87855728-2fe92d80-c8e8-11ea-818a-758e1b84f06f.JPG)
-![Intensity2](https://user-images.githubusercontent.com/54515153/87831532-54c4ad00-c8b6-11ea-82c2-6ad6b43a4cca.JPG)<br>
+![Intensity2](https://user-images.githubusercontent.com/54515153/88329342-c73eee00-ccf7-11ea-8262-65257edb5185.JPG)<br>
 Please refer to [J. G. Rasmussen. Temporal point processes: the
 conditional intensity function. 2009.](https://arxiv.org/abs/1806.00221) for proof and detailed math formular deductions in the place with mark [1] above.
 
 ### Hawkes Process
-![Hawkes](https://user-images.githubusercontent.com/54515153/87855731-32e41e00-c8e8-11ea-89a4-00f1711508f9.JPG)
+![Hawkes](https://user-images.githubusercontent.com/54515153/88329616-3fa5af00-ccf8-11ea-9d57-6fed7c932846.JPG)
 
 ### LSTM
 ![LSTM1](https://user-images.githubusercontent.com/54515153/87856492-991f6f80-c8ed-11ea-9bae-362e3a0c3fa2.JPG)
 ![LSTM2](https://user-images.githubusercontent.com/54515153/87855736-37103b80-c8e8-11ea-8196-516a4e644b82.JPG)
-![LSTM3](https://user-images.githubusercontent.com/54515153/87855831-e0573180-c8e8-11ea-933e-2e5829cafda4.JPG)<br>
+![LSTM3](https://user-images.githubusercontent.com/54515153/88330002-c064ab00-ccf8-11ea-912e-3bfd297c127d.JPG)<br>
 To learn more about how Neural Network, RNN an LSTM works, [Dive into Deep Learning](https://d2l.ai/) is a good source. 
 
 ## Model Description:
 
 ### Model and Model Training
-![training1](https://user-images.githubusercontent.com/54515153/87862402-bb30e600-c91d-11ea-867c-1d82f90ff361.JPG)
+![training1](https://user-images.githubusercontent.com/54515153/88330939-2f8ecf00-ccfa-11ea-8d0d-4ec5edbd111a.JPG)
 ![training2](https://user-images.githubusercontent.com/54515153/87878384-e6651500-c9b1-11ea-9976-bf79efe98213.JPG)
-![training3](https://user-images.githubusercontent.com/54515153/87862406-bec46d00-c91d-11ea-9246-a1a0edef354e.JPG)
+![training3](https://user-images.githubusercontent.com/54515153/88330953-3584b000-ccfa-11ea-9ce2-5b73e32795b0.JPG)
 ![training4](https://user-images.githubusercontent.com/54515153/87862407-c08e3080-c91d-11ea-83cb-c99e1cbc090e.JPG)
 ![training5](https://user-images.githubusercontent.com/54515153/87862408-c1bf5d80-c91d-11ea-9a79-61e9eb1567f3.JPG)
 
 ### Prediction on Time (duration) and types:
-![testing1](https://user-images.githubusercontent.com/54515153/87878387-e8c76f00-c9b1-11ea-87bd-98409d5f44cd.JPG)
+![testing1](https://user-images.githubusercontent.com/54515153/88331264-afb53480-ccfa-11ea-877b-42c665f3165e.JPG)
 ![testing2](https://user-images.githubusercontent.com/54515153/87878388-ea913280-c9b1-11ea-8d94-bd819ed4b949.JPG)
 ![testing3](https://user-images.githubusercontent.com/54515153/87878389-ec5af600-c9b1-11ea-915d-de6e0fce9e1e.JPG)
 
