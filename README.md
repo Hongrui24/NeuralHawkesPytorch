@@ -164,11 +164,14 @@ We use this test to verify that our pytorch implementation of Neural Hawkes is t
 
 #### Test on 'hawkes' and 'self-correcting':
 2. We also test out model with data provided in Du, Nan, et al. [“Recurrent Marked Temporal Point Processes.”](https://www.kdd.org/kdd2016/subtopic/view/recurrent-temporal-point-process) paper about self-correcting and hawkes. We make predictions on inter-event durations, intensities, and calculate RMSE between real inter-event durations and our predictions for events in a test sequence. We also compare the results with Du Nan's RMTPP's prediction and optimal prediction. We train the model for 10 epochs with learning rate = 0.01 and truncated sequence length = 75. <br />
-- Result of "hawkes":
+- Training Figure of 'self-correcting':
+![training](https://user-images.githubusercontent.com/54515153/88437288-2a9e4e00-cdd4-11ea-8e69-bfeb44712012.png)
+
+- Result of "hawkes" (The first picture is results by Neural Hawkes; the second picture is results by RMTPP on Du et. al's paper):
 ![result](https://user-images.githubusercontent.com/54515153/87882323-5765f600-c9cd-11ea-887e-9ee920b41900.png)
 ![Hawkes](https://user-images.githubusercontent.com/54515153/87882417-dd823c80-c9cd-11ea-846e-fe50ad0a0204.JPG)
 
-- Result of "self-correcting"
+- Result of "self-correcting" (The first picture is results by Neural Hawkes; the second picture is results by RMTPP on Du et. al's paper)
 ![result](https://user-images.githubusercontent.com/54515153/87882330-5f259a80-c9cd-11ea-9d32-d19841026baf.png)
 ![Self-correcting](https://user-images.githubusercontent.com/54515153/87882419-e07d2d00-c9cd-11ea-9b3e-12004245fb7c.JPG)
  <br>
